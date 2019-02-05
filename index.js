@@ -9,8 +9,7 @@
 const provider = {
   type: 'provider',
   name: 's3',
-  hosts: false,
-  disableIdParam: false,
+  hosts: true,
   Model: require('./model'),
   version: require('../package.json').version
 }

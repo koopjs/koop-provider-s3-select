@@ -1,0 +1,14 @@
+[
+  {
+    "properties": {
+      "foo": "bar"
+    },
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        -10,
+        45
+      ]
+    }
+  }
+]
