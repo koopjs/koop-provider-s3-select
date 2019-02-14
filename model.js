@@ -1,4 +1,6 @@
-const fetchS3GeoJson = require('./lib/fetch-s3-geojson')
+const path = require('path')
+const { select } = require('./lib/s3')
+const { translate } = require('./lib/translate')
 const config = require('config')
 if (!config.koopProviderS3) throw new Error(`ERROR: "koopProviderS3" must be defined in your config.`)
 if (!config.koopProviderS3.stores) throw new Error(`ERROR: "koopProviderS3.stores" must be defined in your config.`)
@@ -10,7 +12,7 @@ const stores = config.koopProviderS3.stores
 function Model () {}
 
 /**
- * Fetch data from S3.  Pass result or error to callback.
+ * Fetch data from S3. Pass result or error to callback.
  * @param {object} req express request object
  * @param {function} callback
  */
@@ -25,29 +27,38 @@ Model.prototype.getData = async function (req, callback) {
     return callback(error)
   }
 
-  // TODO: use query parameters to construct SQL
-  const sql = `SELECT * FROM S3Object s`
-
   // The "id" parameter holds the path to the S3 file; "/" are represented with "::", so replace here
   const key = req.params.id.replace(/::/g, '/')
 
-  // Fetch the data from S3 and transform to GeoJSON
-  fetchS3GeoJson(sql, key, storeConfig.serialization, { bucket: storeConfig.bucket })
-    .then(geojson => {
-      return callback(null, geojson)
-    })
-    .catch(err => {
-      // S3 errors have a code in the form of a string and are usually due to
-      if (err.code === 'NoSuchKey') {
-        err.code = 400
-        err.message = 'The requested file does not exist.'
-      } else if (err.code === 'InvalidTextEncoding') {
-        err.code = 500
-        err.message = `${err.message} The compression type set in input serialization may not match this file.`
-      } else if (typeof err.code === 'string') err.code = 500
+  // Determine bucket and key path
+  const s3Path = path.normalize((storeConfig.s3Path || config.koopProviderS3.s3Path) + `/${key}`)
+  const s3PathArr = s3Path.split('/')
+  if (s3PathArr[0] === '') s3PathArr.shift()
+  const bucket = s3PathArr[0]
+  s3PathArr.shift()
+  const keyPath = s3PathArr.join('/')
 
-      callback(err)
-    })
+  // TODO: use query parameters to construct SQL
+  const sql = `SELECT * FROM S3Object s`
+
+  const params = {
+    Bucket: bucket,
+    Key: keyPath,
+    Expression: sql,
+    InputSerialization: storeConfig.serialization,
+    ExpressionType: 'SQL',
+    OutputSerialization: {
+      JSON: {}
+    }
+  }
+
+  try {
+    const json = await select(params)
+    const geojson = translate(json)
+    return callback(null, geojson)
+  } catch (error) {
+    return callback(error)
+  }
 }
 
 module.exports = Model
