@@ -50,3 +50,65 @@ test('s3Select - should return expected json', async t => {
     t.notOk(error, 'unexpected error')
   }
 })
+
+test('s3Select - should return s3 callback 500 error', async t => {
+  t.plan(2)
+
+  // Mock the data stream from S3
+  S3.prototype.selectObjectContent = (params, callback) => {
+    const error = new Error('Unknown bucket')
+    error.code = 'NoBucket'
+    callback(error)
+  }
+
+  try {
+    const json = await s3Select()
+    t.notOk(json, 'should have thrown error')
+  } catch (error) {
+    t.equals(error.message, 'Unknown bucket', 'expected error')
+    t.equals(error.code, 500, 'expected error code')
+  }
+})
+
+test('s3Select - should return s3 callback 400 error', async t => {
+  t.plan(2)
+
+  // Mock the data stream from S3
+  S3.prototype.selectObjectContent = (params, callback) => {
+    const error = new Error()
+    error.code = 'NoSuchKey'
+    callback(error)
+  }
+
+  try {
+    const json = await s3Select()
+    t.notOk(json, 'should have thrown error')
+  } catch (error) {
+    t.equals(error.message, 'The requested file does not exist.', 'expected error')
+    t.equals(error.code, 400, 'expected error code')
+  }
+})
+
+test('s3Select - should emit encoding error error', async t => {
+  t.plan(2)
+
+  // Mock the data stream from S3
+  S3.prototype.selectObjectContent = (params, callback) => {
+    const emitter = new events.EventEmitter();
+
+    callback(null, { Payload: emitter })
+
+    const error = new Error();
+    error.code = 'InvalidTextEncoding'
+    emitter.emit('error', error)
+    emitter.emit('end')
+  }
+
+  try {
+    const json = await s3Select()
+    t.notOk(json, 'should have thrown error')
+  } catch (error) {
+    t.equals(error.message, ' The compression type set in input serialization may not match this file.', 'expected error')
+    t.equals(error.code, 500, 'expected error code')
+  }
+})

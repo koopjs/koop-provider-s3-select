@@ -1,5 +1,5 @@
 const path = require('path')
-const { select } = require('./lib/s3')
+const select = require('./lib/s3')
 const { translate } = require('./lib/translate')
 const config = require('config')
 if (!config.koopProviderS3) throw new Error(`ERROR: "koopProviderS3" must be defined in your config.`)
