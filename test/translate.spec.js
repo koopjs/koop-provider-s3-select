@@ -1,5 +1,5 @@
 const test = require('tape')
-const Joi = require('Joi')
+const Joi = require('joi')
 
 const {
   translate,
