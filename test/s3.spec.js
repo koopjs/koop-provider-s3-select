@@ -10,7 +10,7 @@ const fixture = [
  * Class for generating data structure emitted for a S3 "data" event
  */
 class DataEvent {
-  constructor(str) {
+  constructor (str) {
     this.Records = {
       Payload: Buffer.from(str)
     }
@@ -20,13 +20,11 @@ class DataEvent {
 /**
  * Stub for proxyquire
  */
-class S3 {
-  constructor(){}
-}
+class S3 {}
 
 // Proxyquire the s3 library
 const s3Select = proxyquire('../lib/s3', {
-  'aws-sdk/clients/s3' : S3
+  'aws-sdk/clients/s3': S3
 })
 
 test('s3Select - should return expected json', async t => {
@@ -34,7 +32,7 @@ test('s3Select - should return expected json', async t => {
 
   // Mock the data stream from S3
   S3.prototype.selectObjectContent = (params, callback) => {
-    const emitter = new events.EventEmitter();
+    const emitter = new events.EventEmitter()
 
     callback(null, { Payload: emitter })
 
@@ -94,11 +92,11 @@ test('s3Select - should emit encoding error error', async t => {
 
   // Mock the data stream from S3
   S3.prototype.selectObjectContent = (params, callback) => {
-    const emitter = new events.EventEmitter();
+    const emitter = new events.EventEmitter()
 
     callback(null, { Payload: emitter })
 
-    const error = new Error();
+    const error = new Error()
     error.code = 'InvalidTextEncoding'
     emitter.emit('error', error)
     emitter.emit('end')
@@ -110,5 +108,26 @@ test('s3Select - should emit encoding error error', async t => {
   } catch (error) {
     t.equals(error.message, ' The compression type set in input serialization may not match this file.', 'expected error')
     t.equals(error.code, 500, 'expected error code')
+  }
+})
+
+test('s3Select - should return expected json', async t => {
+  t.plan(1)
+
+  // Mock the data stream from S3
+  S3.prototype.selectObjectContent = (params, callback) => {
+    const emitter = new events.EventEmitter()
+
+    callback(null, { Payload: emitter })
+
+    emitter.emit('data', new DataEvent(`''`))
+    emitter.emit('end')
+  }
+
+  try {
+    const json = await s3Select()
+    t.notOk(json, 'should not have returned json')
+  } catch (error) {
+    t.ok(error, 'JSON parse error')
   }
 })

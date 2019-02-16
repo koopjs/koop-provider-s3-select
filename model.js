@@ -2,9 +2,9 @@ const path = require('path')
 const select = require('./lib/s3')
 const { translate } = require('./lib/translate')
 const config = require('config')
-if (!config.koopProviderS3) throw new Error(`ERROR: "koopProviderS3" must be defined in your config.`)
-if (!config.koopProviderS3.stores) throw new Error(`ERROR: "koopProviderS3.stores" must be defined in your config.`)
-const stores = config.koopProviderS3.stores
+if (!config.koopProviderS3Select) throw new Error(`ERROR: "koopProviderS3Select" must be defined in your config.`)
+if (!config.koopProviderS3Select.stores) throw new Error(`ERROR: "koopProviderS3Select.stores" must be defined in your config.`)
+const stores = config.koopProviderS3Select.stores
 
 /**
  * Model constructor
@@ -31,7 +31,7 @@ Model.prototype.getData = async function (req, callback) {
   const key = req.params.id.replace(/::/g, '/')
 
   // Determine bucket and key path
-  const s3Path = path.normalize((storeConfig.s3Path || config.koopProviderS3.s3Path) + `/${key}`)
+  const s3Path = path.normalize((storeConfig.s3Path || config.koopProviderS3Select.s3Path) + `/${key}`)
   const s3PathArr = s3Path.split('/')
   if (s3PathArr[0] === '') s3PathArr.shift()
   const bucket = s3PathArr[0]
