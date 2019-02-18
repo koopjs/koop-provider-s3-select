@@ -1,10 +1,5 @@
 const test = require('tape')
 const proxyquire = require('proxyquire')
-const events = require('events').EventEmitter
-const fixture = [
-  { foo: 'bar' },
-  { foo: 'baz' }
-]
 
 /**
  * Class for generating data structure emitted for a S3 "data" event
@@ -31,14 +26,23 @@ test('s3Select - should return expected json', async t => {
   t.plan(1)
 
   // Mock the data stream from S3
+  const fixture = [
+    { foo: 'bar' },
+    { foo: 'baz' }
+  ]
+  const iteratorFixture = [
+    Promise.resolve(new DataEvent(`${JSON.stringify(fixture[0])}\n`)),
+    Promise.resolve(new DataEvent(`${JSON.stringify(fixture[1])}\n`))
+  ]
+  const asyncIterable = {
+    [Symbol.asyncIterator]: async function * asyncGenerator () {
+      while (iteratorFixture.length) {
+        yield await iteratorFixture.shift()
+      }
+    }
+  }
   S3.prototype.selectObjectContent = (params, callback) => {
-    const emitter = new events.EventEmitter()
-
-    callback(null, { Payload: emitter })
-
-    emitter.emit('data', new DataEvent(`${JSON.stringify(fixture[0])}\n`))
-    emitter.emit('data', new DataEvent(`${JSON.stringify(fixture[1])}\n`))
-    emitter.emit('end')
+    callback(null, { Payload: asyncIterable })
   }
 
   try {
@@ -91,15 +95,18 @@ test('s3Select - should emit encoding error error', async t => {
   t.plan(2)
 
   // Mock the data stream from S3
+  const asyncIterable = {
+    [Symbol.asyncIterator]: async function * asyncGenerator () {
+      const iteratorFixture = ['']
+      while (iteratorFixture.length) {
+        const error = new Error()
+        error.code = 'InvalidTextEncoding'
+        throw error
+      }
+    }
+  }
   S3.prototype.selectObjectContent = (params, callback) => {
-    const emitter = new events.EventEmitter()
-
-    callback(null, { Payload: emitter })
-
-    const error = new Error()
-    error.code = 'InvalidTextEncoding'
-    emitter.emit('error', error)
-    emitter.emit('end')
+    callback(null, { Payload: asyncIterable })
   }
 
   try {
@@ -115,13 +122,16 @@ test('s3Select - should return expected json', async t => {
   t.plan(1)
 
   // Mock the data stream from S3
+  const asyncIterable = {
+    [Symbol.asyncIterator]: async function * asyncGenerator () {
+      const iteratorFixture = ['']
+      while (iteratorFixture.length) {
+        yield await iteratorFixture.shift()
+      }
+    }
+  }
   S3.prototype.selectObjectContent = (params, callback) => {
-    const emitter = new events.EventEmitter()
-
-    callback(null, { Payload: emitter })
-
-    emitter.emit('data', new DataEvent(`''`))
-    emitter.emit('end')
+    callback(null, { Payload: asyncIterable })
   }
 
   try {
