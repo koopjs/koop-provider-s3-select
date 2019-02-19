@@ -1,6 +1,6 @@
 {
   "name": "@koopjs/provider-s3-select",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Koop provider for S3 data",
   "main": "index.js",
   "scripts": {

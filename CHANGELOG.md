@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [1.0.1] - 2018-02-19
 
 ### Fixed
 * Path to package.json in index.js
@@ -13,4 +13,5 @@ Initial release of a S3 provider.
 ### Added
 * Code,tests and travis build.
 
+[1.0.1]: https://github.com/koopjs/koop-provider-s3-select/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/koopjs/koop-provider-s3-select.git/releases/tag/v1.0.0
