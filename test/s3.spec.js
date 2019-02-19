@@ -32,7 +32,8 @@ test('s3Select - should return expected json', async t => {
   ]
   const iteratorFixture = [
     Promise.resolve(new DataEvent(`${JSON.stringify(fixture[0])}\n`)),
-    Promise.resolve(new DataEvent(`${JSON.stringify(fixture[1])}\n`))
+    Promise.resolve(new DataEvent(`${JSON.stringify(fixture[1])}\n`)),
+    Promise.resolve({ End: 'end' })
   ]
   const asyncIterable = {
     [Symbol.asyncIterator]: async function * asyncGenerator () {
@@ -41,8 +42,12 @@ test('s3Select - should return expected json', async t => {
       }
     }
   }
-  S3.prototype.selectObjectContent = (params, callback) => {
-    callback(null, { Payload: asyncIterable })
+  S3.prototype.selectObjectContent = (params) => {
+    return {
+      promise: async () => {
+        return { Payload: asyncIterable }
+      }
+    }
   }
 
   try {
@@ -57,15 +62,15 @@ test('s3Select - should return s3 callback 500 error', async t => {
   t.plan(2)
 
   // Mock the data stream from S3
-  S3.prototype.selectObjectContent = (params, callback) => {
+  S3.prototype.selectObjectContent = (params) => {
     const error = new Error('Unknown bucket')
     error.code = 'NoBucket'
-    callback(error)
+    throw error
   }
 
   try {
-    const json = await s3Select()
-    t.notOk(json, 'should have thrown error')
+    await s3Select()
+    t.fail('should have thrown error')
   } catch (error) {
     t.equals(error.message, 'Unknown bucket', 'expected error')
     t.equals(error.code, 500, 'expected error code')
@@ -76,42 +81,43 @@ test('s3Select - should return s3 callback 400 error', async t => {
   t.plan(2)
 
   // Mock the data stream from S3
-  S3.prototype.selectObjectContent = (params, callback) => {
+  S3.prototype.selectObjectContent = (params) => {
     const error = new Error()
     error.code = 'NoSuchKey'
-    callback(error)
+    throw error
   }
 
   try {
-    const json = await s3Select()
-    t.notOk(json, 'should have thrown error')
+    await s3Select()
+    t.fail('should have thrown error')
   } catch (error) {
     t.equals(error.message, 'The requested file does not exist.', 'expected error')
     t.equals(error.code, 400, 'expected error code')
   }
 })
 
-test('s3Select - should emit encoding error error', async t => {
+test('s3Select - should emit encoding error', async t => {
   t.plan(2)
 
   // Mock the data stream from S3
   const asyncIterable = {
     [Symbol.asyncIterator]: async function * asyncGenerator () {
-      const iteratorFixture = ['']
-      while (iteratorFixture.length) {
-        const error = new Error()
-        error.code = 'InvalidTextEncoding'
-        throw error
+      const error = new Error()
+      error.code = 'InvalidTextEncoding'
+      throw error
+    }
+  }
+  S3.prototype.selectObjectContent = (params) => {
+    return {
+      promise: async () => {
+        return { Payload: asyncIterable }
       }
     }
   }
-  S3.prototype.selectObjectContent = (params, callback) => {
-    callback(null, { Payload: asyncIterable })
-  }
 
   try {
-    const json = await s3Select()
-    t.notOk(json, 'should have thrown error')
+    await s3Select()
+    t.fail('should have thrown error')
   } catch (error) {
     t.equals(error.message, ' The compression type set in input serialization may not match this file.', 'expected error')
     t.equals(error.code, 500, 'expected error code')
@@ -124,19 +130,26 @@ test('s3Select - should return expected json', async t => {
   // Mock the data stream from S3
   const asyncIterable = {
     [Symbol.asyncIterator]: async function * asyncGenerator () {
-      const iteratorFixture = ['']
+      const iteratorFixture = [
+        Promise.resolve(new DataEvent('')),
+        Promise.resolve({ End: 'end' })
+      ]
       while (iteratorFixture.length) {
         yield await iteratorFixture.shift()
       }
     }
   }
-  S3.prototype.selectObjectContent = (params, callback) => {
-    callback(null, { Payload: asyncIterable })
+  S3.prototype.selectObjectContent = (params) => {
+    return {
+      promise: async () => {
+        return { Payload: asyncIterable }
+      }
+    }
   }
 
   try {
-    const json = await s3Select()
-    t.notOk(json, 'should not have returned json')
+    await s3Select()
+    t.fail('should not have returned')
   } catch (error) {
     t.ok(error, 'JSON parse error')
   }
