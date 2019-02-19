@@ -11,7 +11,7 @@ const provider = {
   name: 's3',
   hosts: true,
   Model: require('./model'),
-  version: require('../package.json').version
+  version: require('./package.json').version
 }
 
 module.exports = provider

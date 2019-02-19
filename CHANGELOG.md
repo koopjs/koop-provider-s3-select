@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Fixed
+* Path to package.json in index.js
+
 ## [1.0.0] - 2018-02-19
 Initial release of a S3 provider.
 
