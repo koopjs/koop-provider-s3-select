@@ -9,6 +9,7 @@ const {
 } = require('../lib/translate')
 
 const objectArrFixture = require('./fixtures/object-array.json')
+const objectArrGeomFixture = require('./fixtures/object-array-with-geom.json')
 const featureArrFixture = require('./fixtures/feature-array.json')
 const geometryArrFixture = require('./fixtures/geometry-array.json')
 const featureCollectionArrFixture = require('./fixtures/feature-collection-array.json')
@@ -42,6 +43,16 @@ test('translate -  an object array to a GeoJSON feature collection', t => {
   t.plan(1)
   const result = translateObjectArray(objectArrFixture)
   t.notOk(Joi.validate(result, schemaFeatureCollection).error, 'matches feature collection schema')
+})
+
+test('translate -  an object array with geometry fields to a GeoJSON feature collection', t => {
+  t.plan(2)
+  const result = translateObjectArray(objectArrGeomFixture)
+  t.notOk(Joi.validate(result, schemaFeatureCollection).error, 'matches feature collection schema')
+  t.deepEquals(result.features[0].geometry, {
+    type: 'Point',
+    coordinates: [-122.5, 48.6]
+  }, 'geometry properly translated')
 })
 
 test('translate -  a feature array to a GeoJSON feature collection', t => {
