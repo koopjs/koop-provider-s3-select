@@ -1,0 +1,31 @@
+{
+  "koopProviderS3Select": {
+    "s3Path": "your/default/s3-bucket/or/path",
+    "stores": {
+      "json-lines": {
+        "s3Path": "s3-bucket/or/path",
+        "serialization": {
+          "JSON": {
+            "Type": "LINES"
+          }
+        }
+      },
+      "json-doc": {
+        "s3Path": "s3-bucket/or/path",
+        "serialization": {
+          "JSON": {
+            "Type": "DOCUMENT"
+          }  
+        }
+      },
+      "csv-lines" : {
+        "s3Path": "s3-bucket/or/path",
+        "serialization": {
+          "CSV": {
+            "FileHeaderInfo": "USE"
+          }
+        }
+      }
+    }
+  }
+}
