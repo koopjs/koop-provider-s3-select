@@ -17,6 +17,9 @@ const featureCollectionArrFixture = require('./fixtures/feature-collection-array
 // Schema for a GeoJSON feature collection
 const schemaFeatureCollection = Joi.object().keys({
   type: Joi.string().required().valid('FeatureCollection').optional(),
+  metadata: Joi.object().keys({
+    geometryType: Joi.string().optional()
+  }),
   features: Joi.array().items(Joi.object().keys({
     type: Joi.string().valid('Feature'),
     properties: Joi.object().required(),

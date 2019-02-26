@@ -29,6 +29,7 @@ The S3 Select provider uses the [config](http://lorenwest.github.io/node-config/
 {
   "koopProviderS3Select": {
     "s3Path": "my-default-bucket", // default path
+    "ttl": 300, // The TTL option is measured in seconds, it will be used to set the cache expiration entry
     "stores": {
       "my-store-key": {
         "s3Path": "my-other-bucket/a-folder", // specific path for this store
@@ -46,6 +47,7 @@ The S3 Select provider uses the [config](http://lorenwest.github.io/node-config/
 | key | type | description | required |
 | -- | -- | -- | -- |
 | `s3Path` | String | Default path-prefix that will be prepended to all requested files. Begins with the S3 bucket name and may include any sub-directory path. | No |
+| `ttl` | Integer | Number of seconds to cache the data | No |
 | `stores` | Object |key-value lookup used by the provider to fetch specific configuration information for a request. Each key in `stores` defines a valid value of the `:host` route parameter | Yes |
 | `stores[<key>].s3Path`| String | Path-prefix that will be prepended to all file requests when `:host` is equal to `<key>` | No |
 | `stores[<key>].serialization`| Object | S3 input serialization object. Informs S3 how files requested with a give `:host` value should be deserialized. See [S3 documentation](https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectSELECTContent.html).| No |

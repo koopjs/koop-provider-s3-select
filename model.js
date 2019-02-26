@@ -56,6 +56,9 @@ Model.prototype.getData = async function (req, callback) {
     const json = await select(params)
     const geojson = translate(json)
 
+    // Turn on cache if ttl found in configuration
+    if (config.koopProviderS3Select.ttl) geojson.ttl = config.koopProviderS3Select.ttl
+
     // TODO: Once query parameters are used in SQL select, add metadata annotations
     // so output-services don't duplicate post-processing; e.g., geojson.metadata.filtersApplied.where
     return callback(null, geojson)
