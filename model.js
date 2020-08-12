@@ -1,4 +1,5 @@
-const path = require('path')
+
+const _ = require('lodash')
 const select = require('./lib/s3')
 const { translate } = require('./lib/translate')
 const config = require('config')
@@ -31,7 +32,7 @@ Model.prototype.getData = async function (req, callback) {
   const key = req.params.id.replace(/::/g, '/')
 
   // Determine bucket and key path
-  const s3Path = path.normalize((storeConfig.s3Path || config.koopProviderS3Select.s3Path) + `/${key}`)
+  const s3Path = joinS3PathFragments((storeConfig.s3Path || config.koopProviderS3Select.s3Path), key)
   const s3PathArr = s3Path.split('/')
   if (s3PathArr[0] === '') s3PathArr.shift()
   const bucket = s3PathArr[0]
@@ -65,6 +66,15 @@ Model.prototype.getData = async function (req, callback) {
   } catch (error) {
     return callback(error)
   }
+}
+
+function joinS3PathFragments () {
+  const path = _.chain(arguments).values().filter(fragment => {
+    return !_.isEmpty(fragment) || fragment === '/'
+  }).map(fragment => {
+    return fragment.split('/').filter(fragment => fragment !== '')
+  }).flatten().join('/').value()
+  return `/${path}`
 }
 
 module.exports = Model
