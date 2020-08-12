@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Fixed
+* Use of `path` for creating s3 route failed on Windows. Rolled own path joiner.
+
 ## [1.1.1] - 2018-02-26
 ### Added
 * Add `metadata.geometryType` to translated GeoJSON
