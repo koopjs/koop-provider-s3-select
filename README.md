@@ -1,4 +1,5 @@
-# koop-provider-s3-select
+# @koopjs/provider-s3-select
+
 Koop provider for fetching data stored S3 with S3 Select. Files can be JSON, JSON lines, or CSVs. Note that CSV source files currently result in features with empty geometries.
 
 ## Usage
@@ -17,7 +18,7 @@ const Koop = require('koop')
 const koop = new Koop()
 
 // register
-const s3SelectProvider = require('@koopjs/koop-provider-s3-select')
+const s3SelectProvider = require('@koopjs/provider-s3-select')
 koop.register(s3SelectProvider)
 ```
 
@@ -25,7 +26,7 @@ koop.register(s3SelectProvider)
 
 The S3 Select provider uses the [config](http://lorenwest.github.io/node-config/) module to store configuration settings in an object scoped to the `koopProviderS3Select` key.  The following JSON provides an example configuration:
 
-```json
+```javascript
 {
   "koopProviderS3Select": {
     "s3Path": "my-default-bucket", // default path
