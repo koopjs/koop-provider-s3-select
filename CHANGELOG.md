@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Changed
+* Removed server.js used for demoing.
+
 ## [1.1.2] - 2020-08-12
 ### Fixed
 * Use of `path` for creating s3 route failed on Windows. Rolled own path joiner.
