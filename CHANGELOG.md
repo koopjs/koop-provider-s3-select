@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [1.1.4] - 2022-04-20
 ### Changed
 * Fix bad commit and release
 
@@ -33,6 +33,7 @@ Initial release of a S3 provider.
 ### Added
 * Code, tests and travis build.
 
+[1.1.4]: https://github.com/koopjs/koop-provider-s3-select/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/koopjs/koop-provider-s3-select/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/koopjs/koop-provider-s3-select/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/koopjs/koop-provider-s3-select/compare/v1.1.0...v1.1.1
