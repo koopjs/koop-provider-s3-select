@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Changed
+* Fix bad commit and release
+
 ## [1.1.3] - 2022-04-18
 ### Changed
 * Removed server.js used for demoing.
